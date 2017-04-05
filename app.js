@@ -8,7 +8,7 @@ var csvFile = './csv/03April2017-one-csv-file-to-rule-them-all.csv';
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 3000;
+var sleepDelayMS = 1500;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -40,7 +40,7 @@ var parser = parse({delimiter: ','}, function(err, data){
         var pattern = /support.mozilla.org/i;
         originalURL = originalURL.replace( pattern, "support-stage.allizom.org" );        
         
-        // pass urls to request but sleep for N milliseconds to not kill the server.
+        // pass urls to request but sleep for N milliseconds to not kill the serve
         sleep(sleepDelayMS);
         //Show we are doing something
         process.stdout.write(".");
