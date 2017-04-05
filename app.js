@@ -4,11 +4,11 @@ var request = require('request');
 var sleep = require('system-sleep');
 
 var urls = new Array();
-var csvFile = './csv/test.csv';
+var csvFile = './csv/03April2017-one-csv-file-to-rule-them-all.csv';
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 2000;
+var sleepDelayMS = 3000;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -35,6 +35,10 @@ var parser = parse({delimiter: ','}, function(err, data){
         // URLS To Test, eh basing this on ruby version... csv file should be cleaner.
         var originalURL = row[3];
         var finalURL = row[6];
+                
+        //Tweak original url to use staging site
+        var pattern = /support.mozilla.org/i;
+        originalURL = originalURL.replace( pattern, "support-stage.allizom.org" );        
         
         // pass urls to request but sleep for N milliseconds to not kill the server.
         sleep(sleepDelayMS);
