@@ -3,8 +3,8 @@
  	1. username
 	2. password
 	3. path to csv file
-1. Create directory /log in project
-1. Create log files in /log (I should do this auto-magically but this is a rush)
+1. Create directory ```/logs``` in project
+1. Create log files in /logs (I should do this auto-magically but this is a rush)
 	1. failureLog.txt
 	2. requestErrorLog.txt
 	3. successLog.txt
