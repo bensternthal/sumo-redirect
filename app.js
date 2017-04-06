@@ -37,7 +37,8 @@ var parser = parse({delimiter: ','}, function(err, data){
         var originalURL = row[3];
         var finalURL = row[6];
                 
-        // pass urls to request but sleep for N milliseconds to not kill the serve
+        // pass urls to request but sleep for N milliseconds to not kill the server and also to prevent
+        // async issues
         sleep(sleepDelayMS);
         //Show we are doing something
         process.stdout.write(".");
@@ -62,34 +63,38 @@ function testURL(originalURL, finalURL) {
 /* if Final URL ID Matches URL (after all the redirects) record success if not record failure */
 function writeResults(response, originalURL, finalURL) {
 
+    /* Get id from finalURL(CSV) and the actual final url returned by lithium */
     finalURLID = getID(finalURL);
     responseURLID = getID(response.request.uri.href);
     
+    /* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv supplied)
+     * matches the actual response.
+     * Example https://support-stage.allizom.org/t5/-/-/ta-p/27861 match on 27861.
+     */    
     if(finalURLID === responseURLID) {
         fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");        
     } else {
-        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href + " , CSV ID:" + finalURLID + " , response ID: " + responseURLID + '\n'); 
+        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href + 
+            " , CSV Supplied ID: " + finalURLID + " , Lithium Returned ID: " + responseURLID + '\n'); 
     }
 }
 
-/* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv) matches the actual response.
- * Example https://support-stage.allizom.org/t5/-/-/ta-p/27861 match on 27861.
- * This function returns whatever is after the last / in the url 
- */
+/* Given a url https://foo.bar/foo/1234 returns only the integer after the last "/". If
+ * something unexpected happens adds some strings that will be logged to help debug */
 function getID (url) {
     var n = url.lastIndexOf('/');
 
     if (n !== -1) {
         var id = parseInt(url.substring(n + 1));
         if (isNaN(id)) {
-            return "id not a number";    
+            return "ID Returned Is Not A Number";    
         } else {
             return id;
         }
     } else {
-        return "missing id"; 
+        return "ID Missing"; 
     }    
 }
+
 // Read CSV File, kicks off everything
 fs.createReadStream(csvFile).pipe(parser);
-
