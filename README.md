@@ -15,16 +15,15 @@ Requires stage credentials.
 1. Second result should generate url match failure and report error with ID
 1. Third result should work
 
-## Log Format
-
+## Logs
 
 **successLog**
 
-Success log shows urls where the finalURL(csv) specified matches the actual end point
+Success log shows when the id in finalURL (from CSV file) and the ID from the final URL from lithium *matches*.
 
 **failureLog**
 
-Failure log shows finalURL (from CSV file) and the href that is the actual endpoint. Along with IDS
+Failure log shows when the id in finalURL (from CSV file) and the ID from the final URL from lithium *does not match*.
 
 **errorLog**
 
