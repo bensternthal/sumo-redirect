@@ -1,3 +1,4 @@
+## Install
 1. run ```npm install```
 1. Copy ```local.json.dist``` to ```local.json```
 1. Fill in values, username/pass only needed if testing stage. CSV is path to csv file './csv/test.csv'
@@ -8,7 +9,7 @@
 	3. successLog.txt
 
 ## Test.csv
-Required stage credentials.
+Requires stage credentials.
 
 1. First result should generate request error.
 1. Second result should generate url match failure and report error with ID
