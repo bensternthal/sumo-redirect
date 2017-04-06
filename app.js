@@ -9,7 +9,7 @@ var csvFile = conf.get('csv');
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 500;
+var sleepDelayMS = 0;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -34,6 +34,7 @@ var parser = parse({delimiter: ','}, function(err, data){
     
     data.forEach(function(row) {
         // URLS To Test, eh basing this on ruby version... csv file should be cleaner.
+        // 3, 6 for csv
         var originalURL = row[3];
         var finalURL = row[6];
                 
@@ -64,8 +65,8 @@ function testURL(originalURL, finalURL) {
 function writeResults(response, originalURL, finalURL) {
 
     /* Get id from finalURL(CSV) and the actual final url returned by lithium */
-    finalURLID = getID(finalURL);
-    responseURLID = getID(response.request.uri.href);
+    var finalURLID = getID(finalURL);
+    var responseURLID = getID(response.request.uri.href);
     
     /* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv supplied)
      * matches the actual response.
