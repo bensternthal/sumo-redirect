@@ -1,3 +1,4 @@
+## Install
 1. run ```npm install```
 1. In app.js populate:
  	1. username
@@ -10,7 +11,7 @@
 	3. successLog.txt
 
 ## Test.csv
-Required stage credentials.
+Requires stage credentials.
 
 1. First result should generate request error.
 1. Second result should generate url match failure and report error with ID
