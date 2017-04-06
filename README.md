@@ -1,8 +1,6 @@
 1. run ```npm install```
-1. In app.js populate:
- 	1. username
-	2. password
-	3. path to csv file
+1. Copy ```local.json.dist``` to ```local.json```
+1. Fill in values, username/pass only needed if testing stage. CSV is path to csv file './csv/test.csv'
 1. Create directory ```/logs``` in project
 1. Create log files in /logs (I should do this auto-magically but this is a rush)
 	1. failureLog.txt

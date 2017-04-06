@@ -1,14 +1,15 @@
+var conf = require('./lib/conf');
 var fs = require('fs');
 var parse = require('csv-parse');
 var request = require('request');
 var sleep = require('system-sleep');
 
 var urls = new Array();
-var csvFile = './csv/test.csv';
+var csvFile = conf.get('csv');
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 1500;
+var sleepDelayMS = 500;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -16,8 +17,8 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 /* Options for HTTP Get Request, remove Auth if you are not testing stage */
 var requestOptions = {
     auth: {
-        username: '',
-        password: ''
+        username: conf.get('username'),
+        password: conf.get('password')
     },
     followAllRedirects: 'true'
 };
@@ -36,10 +37,6 @@ var parser = parse({delimiter: ','}, function(err, data){
         var originalURL = row[3];
         var finalURL = row[6];
                 
-        //Tweak original url to use staging site - not doing this anymore, did search replace in vsv
-        //var pattern = /support.mozilla.org/i;
-        //originalURL = originalURL.replace( pattern, "support-stage.allizom.org" );        
-        
         // pass urls to request but sleep for N milliseconds to not kill the serve
         sleep(sleepDelayMS);
         //Show we are doing something
