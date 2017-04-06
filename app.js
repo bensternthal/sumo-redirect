@@ -4,7 +4,7 @@ var request = require('request');
 var sleep = require('system-sleep');
 
 var urls = new Array();
-var csvFile = './csv/03April2017-one-csv-file-to-rule-them-all.csv';
+var csvFile = './csv/test.csv';
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
@@ -36,9 +36,9 @@ var parser = parse({delimiter: ','}, function(err, data){
         var originalURL = row[3];
         var finalURL = row[6];
                 
-        //Tweak original url to use staging site
-        var pattern = /support.mozilla.org/i;
-        originalURL = originalURL.replace( pattern, "support-stage.allizom.org" );        
+        //Tweak original url to use staging site - not doing this anymore, did search replace in vsv
+        //var pattern = /support.mozilla.org/i;
+        //originalURL = originalURL.replace( pattern, "support-stage.allizom.org" );        
         
         // pass urls to request but sleep for N milliseconds to not kill the serve
         sleep(sleepDelayMS);
@@ -62,14 +62,37 @@ function testURL(originalURL, finalURL) {
     });    
 }
 
-/* if Final URL Matches URL (after all the redirects) record success if not record failure */
+/* if Final URL ID Matches URL (after all the redirects) record success if not record failure */
 function writeResults(response, originalURL, finalURL) {
-    if(response.request.uri.href === finalURL) {
+
+    finalURLID = getID(finalURL);
+    responseURLID = getID(response.request.uri.href);
+    
+    if(finalURLID === responseURLID) {
         fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");        
     } else {
-        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href + '\n'); 
+        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href + " , CSV ID:" + finalURLID + " , response ID: " + responseURLID + '\n'); 
     }
 }
 
+/* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv) matches the actual response.
+ * Example https://support-stage.allizom.org/t5/-/-/ta-p/27861 match on 27861.
+ * This function returns whatever is after the last / in the url 
+ */
+function getID (url) {
+    var n = url.lastIndexOf('/');
+
+    if (n !== -1) {
+        var id = parseInt(url.substring(n + 1));
+        if (isNaN(id)) {
+            return "id not a number";    
+        } else {
+            return id;
+        }
+    } else {
+        return "missing id"; 
+    }    
+}
 // Read CSV File, kicks off everything
 fs.createReadStream(csvFile).pipe(parser);
+
