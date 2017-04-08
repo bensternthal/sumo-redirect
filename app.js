@@ -9,7 +9,7 @@ var csvFile = conf.get('csv');
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 0;
+var sleepDelayMS = 500;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -24,20 +24,20 @@ var requestOptions = {
 };
 
 
-/* Receives a file and parses based on supplied delimeter, 
- * for each line passes 2 urls (original & final) to be tested. */ 
+/* Receives a file and parses based on supplied delimeter,
+ * for each line passes 2 urls (original & final) to be tested. */
 var parser = parse({delimiter: ','}, function(err, data){
     if (err) {
         console.error('Error: ', err);
         return;
     }
-    
+
     data.forEach(function(row) {
         // URLS To Test, eh basing this on ruby version... csv file should be cleaner.
         // 3, 6 for csv
-        var originalURL = row[3];
-        var finalURL = row[6];
-                
+        var originalURL = row[0];
+        var finalURL = row[1];
+
         // pass urls to request but sleep for N milliseconds to not kill the server and also to prevent
         // async issues
         sleep(sleepDelayMS);
@@ -51,14 +51,14 @@ var parser = parse({delimiter: ','}, function(err, data){
  /* Requests original url and stores response following redirects */
 function testURL(originalURL, finalURL) {
     requestOptions.url = originalURL;
-    
+
     request(requestOptions, function (error, response, body) {
         if (error) {
             fs.appendFileSync(requestErrorLog, error + ' ' + originalURL + "\n");
         } else {
             writeResults(response, originalURL, finalURL);
-        }     
-    });    
+        }
+    });
 }
 
 /* if Final URL ID Matches URL (after all the redirects) record success if not record failure */
@@ -67,16 +67,16 @@ function writeResults(response, originalURL, finalURL) {
     /* Get id from finalURL(CSV) and the actual final url returned by lithium */
     var finalURLID = getID(finalURL);
     var responseURLID = getID(response.request.uri.href);
-    
+
     /* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv supplied)
      * matches the actual response.
      * Example https://support-stage.allizom.org/t5/-/-/ta-p/27861 match on 27861.
-     */    
+     */
     if(finalURLID === responseURLID) {
-        fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");        
+        fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");
     } else {
-        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href + 
-            " , CSV Supplied ID: " + finalURLID + " , Lithium Returned ID: " + responseURLID + '\n'); 
+        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href +
+            " , CSV Supplied ID: " + finalURLID + " , Lithium Returned ID: " + responseURLID + '\n');
     }
 }
 
@@ -88,13 +88,13 @@ function getID (url) {
     if (n !== -1) {
         var id = parseInt(url.substring(n + 1));
         if (isNaN(id)) {
-            return "ID Returned Is Not A Number";    
+            return "ID Returned Is Not A Number";
         } else {
             return id;
         }
     } else {
-        return "ID Missing"; 
-    }    
+        return "ID Missing";
+    }
 }
 
 // Read CSV File, kicks off everything
