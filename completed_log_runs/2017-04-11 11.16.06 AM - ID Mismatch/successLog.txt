@@ -1,0 +1,4 @@
+Success: https://support-stage.allizom.org/products/firefox-ja , https://support-stage.allizom.org/t5/Firefox/ct-p/Firefox-ja
+Success: https://support-stage.allizom.org/products/firefox-ja-JP-mac , https://support-stage.allizom.org/t5/Firefox/ct-p/Firefox-ja
+Success: https://support-stage.allizom.org/kb/Options%20window%20-%20Advanced%20panel-pt-BR#connection_settings , https://support-stage.allizom.org/t5/Manage-preferences-and-add-ons/Painel-avan%C3%A7ado-Acessibilidade-navega%C3%A7%C3%A3o-rede-atualiza%C3%A7%C3%B5es-e/ta-p/6899
+Success: https://support-stage.allizom.org/kb/Options%20window%20-%20Advanced%20panel-pt-PT#connection_settings , https://support-stage.allizom.org/t5/Manage-preferences-and-add-ons/Painel-avan%C3%A7ado-Acessibilidade-navega%C3%A7%C3%A3o-rede-atualiza%C3%A7%C3%B5es-e/ta-p/6704
