@@ -2,11 +2,8 @@
 1. run ```npm install```
 1. Copy ```local.json.dist``` to ```local.json```
 1. Fill in values, username/pass only needed if testing stage. CSV is path to csv file './csv/test.csv'
-1. Create directory ```/logs``` in project
-1. Create log files in /logs (I should do this auto-magically but this is a rush)
-	1. failureLog.txt
-	2. requestErrorLog.txt
-	3. successLog.txt
+1. Create directory ```/logs``` in project. Note log files are appended. If you want to run this multiple times, you may want to clear the log files first.
+
 
 ## Test.csv
 Requires stage credentials.
