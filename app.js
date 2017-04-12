@@ -3,6 +3,7 @@ var fs = require('fs');
 var parse = require('csv-parse');
 var request = require('request');
 var sleep = require('system-sleep');
+var chalk = require('chalk');
 
 var urls = new Array();
 var csvFile = conf.get('csv');
@@ -10,6 +11,9 @@ var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
 var sleepDelayMS = 500;
+var successCount = 0;
+var failureCount = 0;
+var errorCount = 0;
 
 /* Diable SSL Checking GLobally */
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
@@ -45,6 +49,9 @@ var parser = parse({delimiter: ','}, function(err, data){
         process.stdout.write(".");
         testURL(originalURL, finalURL);
     });
+    
+    // All done show summary
+    displaySummary();
 });
 
 
@@ -55,6 +62,7 @@ function testURL(originalURL, finalURL) {
     request(requestOptions, function (error, response, body) {
         if (error) {
             fs.appendFileSync(requestErrorLog, error + ' ' + originalURL + "\n");
+            errorCount++;
         } else {
             writeResults(response, originalURL, finalURL);
         }
@@ -74,9 +82,13 @@ function writeResults(response, originalURL, finalURL) {
      */
     if(finalURLID === responseURLID) {
         fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");
+        successCount++;
+        return;
     } else {
-        fs.appendFileSync(failureLog, 'Error: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href +
+        fs.appendFileSync(failureLog, 'Failure: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href +
             " , CSV Supplied ID: " + finalURLID + " , Lithium Returned ID: " + responseURLID + '\n');
+        failureCount++;
+        return;
     }
 }
 
@@ -95,6 +107,13 @@ function getID (url) {
     } else {
         return "ID Missing";
     }
+}
+
+/* Summarizes output */
+function displaySummary() {
+    console.log("\n" + chalk.green.bold(('Success: ') + successCount)); 
+    console.log(chalk.red.bold(('Failure: ') + failureCount));
+    console.log(chalk.magenta.bold(('Errors: ') + errorCount)); 
 }
 
 // Read CSV File, kicks off everything
