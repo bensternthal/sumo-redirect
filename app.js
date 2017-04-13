@@ -10,7 +10,7 @@ var csvFile = conf.get('csv');
 var failureLog = './logs/failureLog.txt';
 var requestErrorLog = './logs/requestErrorLog.txt';
 var successLog = './logs/successLog.txt';
-var sleepDelayMS = 300;
+var sleepDelayMS = conf.get('sleepDelayMS');
 var successCount = 0;
 var failureCount = 0;
 var errorCount = 0;
@@ -27,7 +27,6 @@ var requestOptions = {
     followAllRedirects: 'true'
 };
 
-
 /* Receives a file and parses based on supplied delimeter,
  * for each line passes 2 urls (original & final) to be tested. */
 var parser = parse({delimiter: ','}, function(err, data){
@@ -37,17 +36,25 @@ var parser = parse({delimiter: ','}, function(err, data){
     }
 
     data.forEach(function(row) {
-        // URLS To Test, eh basing this on ruby version... csv file should be cleaner.
-        // 3, 6 for csv
-        var originalURL = row[0];
-        var finalURL = row[1];
-
-        // pass urls to request but sleep for N milliseconds to not kill the server and also to prevent
-        // async issues
+        /*  Object For Storing Attributes of A CSV Row Being Tested 
+         *  Manyally specify csv location depending on file, usually 3, 6 
+        */
+        var csvRow = {
+            originalURL: row[3],
+            finalURL: row[6],
+            finalURLID: null,
+            responseURLID: null
+        };
+        
+        //fix
+        csvRow.finalURLID = getID(csvRow.finalURL);
+        
+        /* Sleep for N milliseconds to not kill the server and also to prevent aysnc issues 
+         * Show a "." so we know its working and actually test the row.
+         */
         sleep(sleepDelayMS);
-        //Show we are doing something
         process.stdout.write(".");
-        testURL(originalURL, finalURL);
+        testURL(csvRow);
     });
     
     // All done show summary
@@ -55,40 +62,48 @@ var parser = parse({delimiter: ','}, function(err, data){
 });
 
 
- /* Requests original url and stores response following redirects */
-function testURL(originalURL, finalURL) {
-    requestOptions.url = originalURL;
+ /* Requests original url and tests against url specified */
+function testURL(csvRow) {
+    
+    // Set URL to test
+    requestOptions.url = csvRow.originalURL;
 
     request(requestOptions, function (error, response, body) {
         if (error) {
-            fs.appendFileSync(requestErrorLog, error + ' ' + originalURL + "\n");
-            errorCount++;
+            writeResultsNEW('error', response, csvRow, error);
         } else {
-            writeResults(response, originalURL, finalURL);
+            /* Get id from finalURL(CSV) and the actual final url returned by lithium */    
+            csvRow.responseURLID = getID(response.request.uri.href);
+            
+            /* Test If ID From CSV Matches Returned ID From Lithium */
+            if(csvRow.finalURLID === csvRow.responseURLID) {
+                writeResultsNEW('success', response, csvRow);
+            } else {
+                writeResultsNEW('failure', response, csvRow);
+
+            }            
         }
     });
 }
 
 /* if Final URL ID Matches URL (after all the redirects) record success if not record failure */
-function writeResults(response, originalURL, finalURL) {
-
-    /* Get id from finalURL(CSV) and the actual final url returned by lithium */
-    var finalURLID = getID(finalURL);
-    var responseURLID = getID(response.request.uri.href);
-
-    /* Lithium is redirecting to "canonical" url so we match only that the id in the final URL(csv supplied)
-     * matches the actual response.
-     * Example https://support-stage.allizom.org/t5/-/-/ta-p/27861 match on 27861.
-     */
-    if(finalURLID === responseURLID) {
-        fs.appendFileSync(successLog, 'Success: ' + originalURL + " , " + finalURL + "\n");
-        successCount++;
-        return;
-    } else {
-        fs.appendFileSync(failureLog, 'Failure: ' + originalURL + " , " + finalURL + " , " + response.request.uri.href +
-            " , CSV Supplied ID: " + finalURLID + " , Lithium Returned ID: " + responseURLID + '\n');
-        failureCount++;
-        return;
+function writeResultsNEW(responseType, response, csvRow, error) {
+    switch (responseType) {
+      case 'success':
+        fs.appendFileSync(successLog, 'Success: ' + csvRow.originalURL + " , " + csvRow.finalURL + "\n");
+        successCount++;      
+        break;
+      case 'failure':
+        fs.appendFileSync(failureLog, 'Failure: ' + csvRow.originalURL + " , " + csvRow.finalURL + " , " + response.request.uri.href +
+        " , CSV Supplied ID: " + csvRow.finalURLID + " , Lithium Returned ID: " + csvRow.responseURLID + '\n');
+        failureCount++;      
+        break;
+      case 'error':
+        fs.appendFileSync(requestErrorLog, error + ' ' + csvRow.originalURL + "\n");
+        errorCount++;
+        break;
+      default:
+        fs.appendFileSync(requestErrorLog, 'Unknown Error' + ' ' + csvRow.originalURL + "\n");
     }
 }
 
