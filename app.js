@@ -57,7 +57,10 @@ var parser = parse({delimiter: ','}, function(err, data){
         testURL(csvRow);
     });
     
-    // All done show summary
+    /* TODO, forEach will exit before test url returns causing summary to display before final count 
+        extra sleep is ugly hack to fix this.
+    */
+    sleep(sleepDelayMS);
     displaySummary();
 });
 
@@ -90,17 +93,17 @@ function testURL(csvRow) {
 function writeResultsNEW(responseType, response, csvRow, error) {
     switch (responseType) {
       case 'success':
+        successCount++;   
         fs.appendFileSync(successLog, 'Success: ' + csvRow.originalURL + " , " + csvRow.finalURL + "\n");
-        successCount++;      
         break;
       case 'failure':
+        failureCount++;      
         fs.appendFileSync(failureLog, 'Failure: ' + csvRow.originalURL + " , " + csvRow.finalURL + " , " + response.request.uri.href +
         " , CSV Supplied ID: " + csvRow.finalURLID + " , Lithium Returned ID: " + csvRow.responseURLID + '\n');
-        failureCount++;      
         break;
       case 'error':
+        errorCount++;      
         fs.appendFileSync(requestErrorLog, error + ' ' + csvRow.originalURL + "\n");
-        errorCount++;
         break;
       default:
         fs.appendFileSync(requestErrorLog, 'Unknown Error' + ' ' + csvRow.originalURL + "\n");
