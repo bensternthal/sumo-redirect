@@ -40,8 +40,8 @@ var parser = parse({delimiter: ','}, function(err, data){
          *  Manyally specify csv location depending on file, usually 3, 6 
         */
         var csvRow = {
-            originalURL: row[3],
-            finalURL: row[6],
+            originalURL: row[0],
+            finalURL: row[1],
             finalURLID: null,
             responseURLID: null
         };
@@ -111,17 +111,22 @@ function writeResultsNEW(responseType, response, csvRow, error) {
 /* Given a url https://foo.bar/foo/1234 returns only the integer after the last "/". If
  * something unexpected happens adds some strings that will be logged to help debug */
 function getID (url) {
-    var n = url.lastIndexOf('/');
-
-    if (n !== -1) {
-        var id = parseInt(url.substring(n + 1));
-        if (isNaN(id)) {
-            return "ID Returned Is Not A Number";
+    if (url) {
+        var n = url.lastIndexOf('/');
+        
+        if (n !== -1) {
+            var id = parseInt(url.substring(n + 1));
+            if (isNaN(id)) {
+                return "ID Returned Is Not A Number";
+            } else {
+                return id;
+            }
         } else {
-            return id;
-        }
+            return "ID Missing";
+        }        
     } else {
-        return "ID Missing";
+        console.log(chalk.red.bold((' Failure: Check URL Mapping \n')));
+        return('Missing URL: Check CSV Column Mapping');
     }
 }
 
