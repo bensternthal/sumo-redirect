@@ -53,7 +53,7 @@ var parser = parse({delimiter: ','}, function(err, data){
          * Show a "." so we know its working and actually test the row.
          */
         sleep(sleepDelayMS);
-        process.stdout.write(".");
+        process.stdout.write(" 🐱 ");
         testURL(csvRow);
     });
     
@@ -63,7 +63,6 @@ var parser = parse({delimiter: ','}, function(err, data){
     sleep(sleepDelayMS);
     displaySummary();
 });
-
 
  /* Requests original url and tests against url specified */
 function testURL(csvRow) {
@@ -83,7 +82,6 @@ function testURL(csvRow) {
                 writeResultsNEW('success', response, csvRow);
             } else {
                 writeResultsNEW('failure', response, csvRow);
-
             }            
         }
     });
