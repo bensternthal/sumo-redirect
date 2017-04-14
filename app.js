@@ -53,7 +53,7 @@ var parser = parse({delimiter: ','}, function(err, data){
          * Show a "." so we know its working and actually test the row.
          */
         sleep(sleepDelayMS);
-        process.stdout.write(" 🐱 ");
+        process.stdout.write(" 🐱. ");
         testURL(csvRow);
     });
     
